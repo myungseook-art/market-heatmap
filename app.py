@@ -3,16 +3,22 @@ import yfinance as yf
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
 st.title("🌍 개인용 멀티마켓 히트맵 – 풀옵션 버전")
 
 # -------------------------
-# 자동 새로고침
+# 자동 새로고침 (Cloud 호환)
 # -------------------------
-if st.sidebar.checkbox("자동 새로고침 (30초)", value=False):
-    st_autorefresh(interval=30000, key="refresh")
+refresh = st.sidebar.checkbox("자동 새로고침 (30초)", value=False)
+
+if refresh:
+    st.markdown(
+        """
+        <meta http-equiv="refresh" content="30">
+        """,
+        unsafe_allow_html=True
+    )
 
 # -------------------------
 # 시장 선택
