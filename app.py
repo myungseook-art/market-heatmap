@@ -3,17 +3,16 @@ import yfinance as yf
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(layout="wide")
 st.title("🌍 개인용 멀티마켓 히트맵 – 풀옵션 버전")
 
 # -------------------------
-# 자동 새로고침 (Streamlit 공식 방식)
+# 자동 새로고침
 # -------------------------
 if st.sidebar.checkbox("자동 새로고침 (30초)", value=False):
-    st.experimental_set_query_params(refresh="1")
-else:
-    st.experimental_set_query_params()
+    st_autorefresh(interval=30000, key="refresh")
 
 # -------------------------
 # 시장 선택
@@ -78,7 +77,6 @@ def load_data(symbols, period):
             stock = yf.Ticker(symbol)
             hist = stock.history(period=period)
 
-            # 데이터 없으면 스킵
             if hist is None or hist.empty or len(hist) < 2:
                 continue
 
