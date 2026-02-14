@@ -140,4 +140,57 @@ else:
 fig = px.treemap(
     df,
     path=["Sector","Symbol"],
-   
+    values="MarketCap",
+    color="Change (%)",
+    hover_data=["Price","Change (%)"],
+    color_continuous_scale=[
+        [0.0, "#7f0000"],
+        [0.25, "#ff4d4d"],
+        [0.5, "#ffffff"],
+        [0.75, "#66cc66"],
+        [1.0, "#006400"]
+    ],
+    color_continuous_midpoint=0
+)
+fig.update_layout(margin=dict(t=30, l=5, r=5, b=5))
+st.plotly_chart(fig, use_container_width=True)
+
+# -------------------------
+# 종목 검색
+# -------------------------
+search = st.text_input("🔍 종목 검색 (심볼 입력)")
+if search:
+    df = df[df["Symbol"].str.contains(search.upper())]
+
+# -------------------------
+# 종목 선택
+# -------------------------
+selected = st.selectbox("종목 선택", df["Symbol"])
+st.dataframe(df[df["Symbol"] == selected], use_container_width=True)
+
+# -------------------------
+# 차트 (캔들 + 라인)
+# -------------------------
+st.subheader(f"📈 {selected} 차트")
+
+stock = yf.Ticker(selected)
+hist = stock.history(period="3mo")
+
+tab1, tab2 = st.tabs(["캔들 차트", "라인 차트"])
+
+with tab1:
+    fig_candle = go.Figure(data=[
+        go.Candlestick(
+            x=hist.index,
+            open=hist["Open"],
+            high=hist["High"],
+            low=hist["Low"],
+            close=hist["Close"]
+        )
+    ])
+    fig_candle.update_layout(height=500)
+    st.plotly_chart(fig_candle, use_container_width=True)
+
+with tab2:
+    fig_line = px.line(hist, y="Close", title="종가 추세")
+    st.plotly_chart(fig_line, use_container_width=True)
