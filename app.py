@@ -8,14 +8,12 @@ st.set_page_config(layout="wide")
 st.title("🌍 개인용 멀티마켓 히트맵 – 풀옵션 버전")
 
 # -------------------------
-# 자동 새로고침 (안전 버전)
+# 자동 새로고침 (Streamlit 공식 방식)
 # -------------------------
-refresh = st.sidebar.checkbox("자동 새로고침 (30초)", value=False)
-if refresh:
-    st.session_state["refresh"] = True
-
-if st.session_state.get("refresh", False):
-    st.experimental_rerun()
+if st.sidebar.checkbox("자동 새로고침 (30초)", value=False):
+    st.experimental_set_query_params(refresh="1")
+else:
+    st.experimental_set_query_params()
 
 # -------------------------
 # 시장 선택
