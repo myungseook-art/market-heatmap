@@ -3,7 +3,6 @@ import yfinance as yf
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
 
 st.set_page_config(layout="wide")
 st.title("🌍 개인용 멀티마켓 히트맵 – 풀옵션 버전")
@@ -33,7 +32,7 @@ period_option = st.sidebar.selectbox(
 # -------------------------
 markets = {
     "KOSPI": ["005930.KS","000660.KS","035420.KS","051910.KS"],
-    "KOSDAQ": ["035720.KQ","086520.KQ","091990.KQ"],
+    "KOSDAQ": ["035720.KQ","086520.KQ"],
     "S&P500": ["AAPL","MSFT","NVDA","AMZN","GOOGL"],
     "Nasdaq": ["NVDA","AMD","META","TSLA"],
     "Dow": ["AAPL","MSFT","JPM","V"],
@@ -78,7 +77,8 @@ def load_data(symbols, period):
             stock = yf.Ticker(symbol)
             hist = stock.history(period=period)
 
-            if len(hist) < 2:
+            # 데이터 없으면 스킵
+            if hist is None or hist.empty or len(hist) < 2:
                 continue
 
             price_now = hist["Close"].iloc[-1]
@@ -139,53 +139,5 @@ else:
 # -------------------------
 fig = px.treemap(
     df,
-    path=["Sector", "Symbol"],
-    values="MarketCap",
-    color="Change (%)",
-    color_continuous_scale=["blue", "white", "red"],
-    color_continuous_midpoint=0,
-    hover_data=["Price", "Change (%)"]
-)
-
-fig.update_layout(margin=dict(t=30, l=5, r=5, b=5))
-st.plotly_chart(fig, use_container_width=True)
-
-# -------------------------
-# 종목 검색
-# -------------------------
-search = st.text_input("🔍 종목 검색 (심볼 입력)")
-if search:
-    df = df[df["Symbol"].str.contains(search.upper())]
-
-# -------------------------
-# 종목 선택
-# -------------------------
-selected = st.selectbox("종목 선택", df["Symbol"])
-st.dataframe(df[df["Symbol"] == selected], use_container_width=True)
-
-# -------------------------
-# 차트 (캔들 + 라인)
-# -------------------------
-st.subheader(f"📈 {selected} 차트")
-
-stock = yf.Ticker(selected)
-hist = stock.history(period="3mo")
-
-tab1, tab2 = st.tabs(["캔들 차트", "라인 차트"])
-
-with tab1:
-    fig_candle = go.Figure(data=[
-        go.Candlestick(
-            x=hist.index,
-            open=hist["Open"],
-            high=hist["High"],
-            low=hist["Low"],
-            close=hist["Close"]
-        )
-    ])
-    fig_candle.update_layout(height=500)
-    st.plotly_chart(fig_candle, use_container_width=True)
-
-with tab2:
-    fig_line = px.line(hist, y="Close", title="종가 추세")
-    st.plotly_chart(fig_line, use_container_width=True)
+    path=["Sector","Symbol"],
+   
