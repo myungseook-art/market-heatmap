@@ -8,10 +8,13 @@ st.set_page_config(layout="wide")
 st.title("🌍 개인용 멀티마켓 히트맵 – 풀옵션 버전")
 
 # -------------------------
-# 자동 새로고침
+# 자동 새로고침 (안전 버전)
 # -------------------------
-st_autorefresh = st.sidebar.checkbox("자동 새로고침 (30초)", value=False)
-if st_autorefresh:
+refresh = st.sidebar.checkbox("자동 새로고침 (30초)", value=False)
+if refresh:
+    st.session_state["refresh"] = True
+
+if st.session_state.get("refresh", False):
     st.experimental_rerun()
 
 # -------------------------
